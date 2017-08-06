@@ -1,0 +1,117 @@
+#compdef notes
+#autoload
+
+# Copyright (C) 2012 - 2017:
+#    Johan Venant <jvenant@invicem.pro>
+#    Brian Mattern <rephorm@rephorm.com>
+#    Jason A. Donenfeld <Jason@zx2c4.com>
+#    Philipp Hack <philipp.hack@gmail.com>.
+# All Rights Reserved.
+# This file is licensed under the GPLv2+. Please see COPYING for more information.
+
+
+# If you use multiple repositories, you can configure completion like this:
+#
+# compdef _notes worknotes
+# zstyle ':completion::complete:worknotes::' prefix "$HOME/work/notes"
+# worknote() {
+#   NOTE_STORE_DIR=$HOME/work/notes notes $@
+# }
+
+
+_notes () {
+	local cmd
+	if (( CURRENT > 2)); then
+		cmd=${words[2]}
+		# Set the context for the subcommand.
+		curcontext="${curcontext%:*:*}:notes-$cmd"
+		# Narrow the range of words we are looking at to exclude `note'
+		(( CURRENT-- ))
+		shift words
+		# Run the completion for the subcommand
+		case "${cmd}" in
+			ls|list|edit)
+				_note_complete_entries_with_subdirs
+				;;
+			insert)
+				_arguments : \
+					"-a[append to note]" \
+					"--append[append to note]" \
+					"-f[force overwrite of existing note]" \
+					"--force[force overwrite of existing note]"
+				_note_complete_entries_with_subdirs
+				;;
+			cp|copy|mv|rename)
+				_arguments : \
+					"-f[force rename]" \
+					"--force[force rename]"
+					_note_complete_entries_with_subdirs
+				;;
+			rm)
+				_arguments : \
+					"-f[force deletion]" \
+					"--force[force deletion]" \
+					"-r[recursively delete]" \
+					"--recursive[recursively delete]"
+					_note_complete_entries_with_subdirs
+				;;
+			git)
+				local -a subcommands
+				subcommands=(
+					"init:Initialize git repository"
+					"push:Push to remote repository"
+					"pull:Pull from remote repository"
+					"config:Show git config"
+					"log:Show git log"
+					"reflog:Show git reflog"
+				)
+				_describe -t commands 'note git' subcommands
+				;;
+			show|*)
+				_note_cmd_show
+				;;
+		esac
+	else
+		local -a subcommands
+		subcommands=(
+			"ls:List notes"
+			"find:Find note files or directories based on pattern"
+			"grep:Search inside decrypted note files for matching pattern"
+			"show:Print a note"
+			"insert:Insert a new note"
+			"edit:Edit a note with \$EDITOR"
+			"mv:Rename the note"
+			"cp:Copy the note"
+			"rm:Remove the note"
+			"git:Call git on the note store"
+			"version:Output version information"
+			"help:Output help message"
+		)
+		_describe -t commands 'notes' subcommands
+		_arguments : \
+			"--version[Output version information]" \
+			"--help[Output help message]"
+		_note_cmd_show
+	fi
+}
+
+_note_cmd_show () {
+	_note_complete_entries
+}
+_note_complete_entries_helper () {
+	local IFS=$'\n'
+	local prefix
+	zstyle -s ":completion:${curcontext}:" prefix prefix || prefix="${NOTE_STORE_DIR:-$HOME/note-store}"
+	zstyle -s ":completion:${curcontext}:" suffix suffix|| suffix="${NOTE_STORE_SUFFIX:-md}"
+	_values -C 'note' ${$(find -L "$prefix" -name .git -prune -o $@ -print 2>/dev/null | sed -e "s#${prefix}/\{0,1\}##" -e 's#\.${suffix}##' -e 's#\\#\\\\#' | sort):-""}
+}
+
+_note_complete_entries_with_subdirs () {
+	_note_complete_entries_helper
+}
+
+_note_complete_entries () {
+	_note_complete_entries_helper -type f
+}
+
+_notes

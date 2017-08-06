@@ -1,0 +1,165 @@
+.TH NOTES 1 "2017 August 06" "Note Store"
+
+.SH NAME
+notes - stores, retrieves, and synchronizes notes
+
+.SH SYNOPSIS
+.B notes
+[ 
+.I COMMAND
+] [ 
+.I OPTIONS
+]... [ 
+.I ARGS
+]...
+
+.SH DESCRIPTION
+
+.B notes 
+is a very simple note store.
+The
+.B notes
+utility provides a series of commands for manipulating the note store,
+allowing the user to add, remove, edit, synchronize, and manipulate
+notes.
+
+If no COMMAND is specified, COMMAND defaults to either
+.B show
+or
+.BR ls ,
+depending on the type of specifier in ARGS. Alternatively, if \fINOTE_STORE_ENABLE_EXTENSIONS\fP
+is set to "true", and the file \fI.extensions/COMMAND.bash\fP exists inside the
+note store and is executable, then it is sourced into the environment,
+passing any arguments and environment variables. Extensions existing in a
+system-wide directory, only installable by the administrator, are always enabled.
+
+Otherwise COMMAND must be one of the valid commands listed below.
+
+Several of the commands below rely on or provide additional functionality if
+the note store directory is also a git repository. If the note store
+directory is a git repository, all note store modification commands will
+cause a corresponding git commit.
+
+There is a corresponding bash completion script for use with tab completing
+note titles in
+.BR bash (1).
+
+.SH COMMANDS
+
+.TP
+\fBls\fP \fIsubfolder\fP
+List names of notes inside the tree at
+.I subfolder
+by using the
+.BR tree (1)
+program. This command is alternatively named \fBlist\fP.
+.TP
+\fBgrep\fP \fIsearch-string\fP
+Searches inside each note file for \fIsearch-string\fP, and displays line
+containing matched string along with filename. Uses
+.BR grep (1)
+for matching. Make use of the \fIGREP_OPTIONS\fP environment variable to set particular
+options.
+.TP
+\fBfind\fP \fInote-titles\fP...
+List names of notes inside the tree that match \fInote-titles\fP by using the
+.BR tree (1)
+program. This command is alternatively named \fBsearch\fP.
+.TP
+\fBshow\fP \fInote-title\fP
+Print a note named \fInote-title\fP.
+.TP
+\fBinsert\fP [ \fI--append\fP, \fI-a\fP ] [ \fI--force\fP, \fI-f\fP ] \fInote-title\fP
+Insert a new note into the note store called \fInote-title\fP. This will
+read the new note from standard in. If \fI--append\fP or \fI-a\fP is specified, append
+the input to an existing note. Prompt before overwriting an existing note, unless \fI--force\fP or \fI-f\fP is specified.
+This command is alternatively named \fBadd\fP.
+.TP
+\fBedit\fP \fInote-title\fP
+Insert a new note or edit an existing note using the default text editor specified
+by the environment variable \fIEDITOR\fP or using
+.BR vi (1)
+.TP
+\fBrm\fP [ \fI--recursive\fP, \fI-r\fP ] [ \fI--force\fP, \fI-f\fP ] \fInote-title\fP
+Remove the note named \fInote-title\fP from the note store. This command is
+alternatively named \fBremove\fP or \fBdelete\fP. If \fI--recursive\fP or \fI-r\fP
+is specified, delete note-title recursively if it is a directory. If \fI--force\fP
+or \fI-f\fP is specified, do not interactively prompt before removal.
+.TP
+\fBmv\fP [ \fI--force\fP, \fI-f\fP ] \fIold-path\fP \fInew-path\fP
+Renames the note or directory named \fIold-path\fP to \fInew-path\fP. This
+command is alternatively named \fBrename\fP. If \fI--force\fP is specified,
+silently overwrite \fInew-path\fP if it exists. If \fInew-path\fP ends in a
+trailing \fI/\fP, it is always treated as a directory.
+.TP
+\fBcp\fP [ \fI--force\fP, \fI-f\fP ] \fIold-path\fP \fInew-path\fP
+Copies the note or directory named \fIold-path\fP to \fInew-path\fP. This
+command is alternatively named \fBcopy\fP. If \fI--force\fP is specified,
+silently overwrite \fInew-path\fP if it exists. If \fInew-path\fP ends in a
+trailing \fI/\fP, it is always treated as a directory.
+.TP
+\fBgit\fP \fIgit-command-args\fP...
+If the note store is a git repository, pass \fIgit-command-args\fP as arguments to
+.BR git (1)
+using the note store as the git repository. If \fIgit-command-args\fP is \fBinit\fP,
+in addition to initializing the git repository, add the current contents of the note
+store to the repository in an initial commit.
+TP
+\fBhelp\fP
+Show usage message.
+.TP
+\fBversion\fP
+Show version information.
+
+.SH FILES
+
+.TP
+.B ~/note-store
+The default note storage directory.
+.TP
+.B ~/note-store/.extensions
+The directory containing extension files.
+
+.SH ENVIRONMENT VARIABLES
+
+.TP
+.I NOTE_STORE_DIR
+Overrides the default note storage directory.
+.TP
+.I NOTE_STORE_ENABLE_EXTENSIONS
+This environment variable must be set to "true" for extensions to be enabled.
+.TP
+.I NOTE_STORE_EXTENSIONS_DIR
+The location to look for executable extension files, by default
+\fINOTE_STORE_DIR/.extensions\fP.
+.TP
+.I EDITOR
+The location of the text editor used by \fBedit\fP.
+.SH SEE ALSO
+.BR git (1),
+
+.SH AUTHOR
+.B notes
+was written by
+.MT philipp.hack@gmail.com
+Philipp Hack
+.ME .
+based on \fBpass\fP by
+.MT Jason@zx2c4.com
+Jason A. Donenfeld
+.ME .
+
+.SH COPYING
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
