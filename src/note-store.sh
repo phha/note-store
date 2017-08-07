@@ -238,6 +238,7 @@ cmd_copy_move() {
 }
 
 cmd_git() {
+  init
 	set_git "$PREFIX/"
 	if [[ $1 == "init" ]]; then
 		INNER_GIT_DIR="$PREFIX"
