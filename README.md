@@ -12,9 +12,7 @@ It can be used as a stand-alone tool or as a backend to the
 [notes-visual](https://github.com/phha/notes-visual)
 utility.
 
-Please see the man page for detailed information. 
-
-For installation instructions see [INSTALL.md].
+Please see the man page and [installation instructions](INSTALL.md) for detailed information. 
 
 Depends on:
 * bash
