@@ -8,11 +8,13 @@ It allows for storage retrieval and editing of text notes inside the note
 store directory. If the note store directory is a git repositoy, changes
 will be commited automatically.
 
-Please see the man page for detailed information.
-
 It can be used as a stand-alone tool or as a backend to the
 [notes-visual](https://github.com/phha/notes-visual)
 utility.
+
+Please see the man page for detailed information. 
+
+For installation instructions see [INSTALL.md].
 
 Depends on:
 * bash
